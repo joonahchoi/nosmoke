@@ -1,142 +1,376 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>흡연 예방 게임</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: 'Courier New', monospace;
-      background: #f0f0f0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>담배 퇴치 게임 🚭</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    #gameArea {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: #cceeff;
-      image-rendering: pixelated;
-      cursor: crosshair;
-    }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
-    .cigarette {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABKklEQVRYR+2WwQ2DMBBF34YMmAJpADpABvQAZ0AEagAd0AHdABdoAl0AHd1ngZt83SXOr+Vv/P9zu3i4TD4K0NIN+UgDNEO1WaRA6VvEYXbT7wHoU4HtmL7sZ1DW2sbpAghBLeXXyG+YZDNEFipqqbcIoJEmqGGRaBKkM2Am2bVppVyAK4ZodX+GZkzQ0PqSpaaOaKJxKgqH8W4IUmQZ0ymylh1IHckc99jgxga3gDT3YApdywByFJb8HpK9YTb9q7nLZjBTKmlcB6NOoyykd6gOmNOuA94R+V2R+67AhcWlyHdeDFE63RbhkguNnKwNNKNz6AAAAAElFTkSuQmCC');
-      background-size: cover;
-      animation: fall linear;
-    }
+        .game-container {
+            background: #fff;
+            border: 8px solid #333;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+        }
 
-    .explosion {
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAeUlEQVRYR+2WsQnAIAxF6w+wAkc3fkvMXQ2axY1EM7zZXzg7e+YwwAfDAEMMAFqA6KhAI6qqrTtW8BvQ4G7MPpuLQKpIGpuhr+jFtvZTf4lAErw1UoFFP5XUJCzH0NHkwNsLkPvEHT+eE6s1EySmJKZ7AQ7EvIOKovGVAAAAAElFTkSuQmCC');
-    }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 4px dashed #333;
+        }
 
-    @keyframes fall {
-      0% { top: -40px; }
-      100% { top: 100vh; }
-    }
+        h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 #ffd700;
+        }
 
-    #scoreboard {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 20px;
-      color: #333;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 8px;
-      border-radius: 5px;
-    }
+        .info-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
 
-    #timer {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 20px;
-      color: #333;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 8px;
-      border-radius: 5px;
-    }
+        .info-box {
+            background: #f0f0f0;
+            border: 4px solid #333;
+            border-radius: 10px;
+            padding: 15px 25px;
+            flex: 1;
+            text-align: center;
+        }
 
-    #gameOver {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 36px;
-      color: #444;
-      background: #fff;
-      padding: 20px 40px;
-      border-radius: 10px;
-      display: none;
-    }
-  </style>
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #score {
+            color: #ff6b6b;
+        }
+
+        #timer {
+            color: #4ecdc4;
+        }
+
+        .game-area {
+            background: #e8f5e9;
+            border: 4px solid #333;
+            border-radius: 15px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cigarette {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.1s;
+            image-rendering: pixelated;
+        }
+
+        .cigarette:hover {
+            transform: scale(1.1);
+        }
+
+        .explosion {
+            position: absolute;
+            pointer-events: none;
+            image-rendering: pixelated;
+            animation: explode 0.5s ease-out;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 6px solid #333;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.7);
+            z-index: 100;
+        }
+
+        .game-over h2 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            font-size: 48px;
+            color: #ff6b6b;
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #ffd700;
+        }
+
+        .restart-btn {
+            background: #4ecdc4;
+            color: white;
+            border: 4px solid #333;
+            border-radius: 10px;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .restart-btn:hover {
+            background: #45b7aa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 0 #333;
+        }
+
+        .restart-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 0 #333;
+        }
+
+        .message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div id="gameArea">
-    <div id="scoreboard">점수: 0</div>
-    <div id="timer">20</div>
-    <div id="gameOver">게임 종료!<br>새로고침으로 다시 시작</div>
-  </div>
+    <div class="game-container">
+        <div class="header">
+            <h1>🚭 담배 퇴치 게임 🚭</h1>
+        </div>
 
-  <script>
-    const gameArea = document.getElementById('gameArea');
-    const scoreboard = document.getElementById('scoreboard');
-    const timerEl = document.getElementById('timer');
-    const gameOverEl = document.getElementById('gameOver');
-    let score = 0;
-    let timeLeft = 20;
-    let gameInterval;
-    let spawnInterval;
+        <div class="info-bar">
+            <div class="info-box">
+                <div class="info-label">점수</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">남은 시간</div>
+                <div class="info-value" id="timer">20</div>
+            </div>
+        </div>
 
-    function spawnCigarette() {
-      const cig = document.createElement('div');
-      cig.classList.add('cigarette');
+        <div class="game-area" id="gameArea">
+            <div class="game-over" id="gameOver">
+                <h2>게임 종료!</h2>
+                <div class="message">담배를 퇴치했어요! 💪</div>
+                <div class="final-score" id="finalScore">0</div>
+                <button class="restart-btn" onclick="restartGame()">다시 시작</button>
+            </div>
+        </div>
+    </div>
 
-      const left = Math.random() * (window.innerWidth - 32);
-      const duration = 3 + Math.random() * 2;
-      cig.style.left = `${left}px`;
-      cig.style.animationDuration = `${duration}s`;
+    <script>
+        let score = 0;
+        let timeLeft = 20;
+        let gameActive = true;
+        let spawnInterval;
+        let timerInterval;
 
-      cig.addEventListener('click', () => {
-        cig.classList.add('explosion');
-        score++;
-        scoreboard.textContent = `점수: ${score}`;
-        cig.style.pointerEvents = 'none';
-
-        setTimeout(() => {
-          gameArea.removeChild(cig);
-        }, 1000);
-      });
-
-      // Remove if it falls off screen
-      cig.addEventListener('animationend', () => {
-        if (gameArea.contains(cig)) {
-          gameArea.removeChild(cig);
+        // 도트 스타일 담배 SVG (간단한 픽셀 스타일)
+        function createCigaretteSVG() {
+            return `data:image/svg+xml,${encodeURIComponent(`
+                <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="15" y="8" width="10" height="24" fill="#e0e0e0"/>
+                    <rect x="15" y="8" width="10" height="4" fill="#ff9800"/>
+                    <rect x="17" y="10" width="6" height="2" fill="#ff5722"/>
+                    <rect x="16" y="12" width="8" height="20" fill="#f5f5f5"/>
+                    <rect x="18" y="14" width="4" height="16" fill="#bdbdbd"/>
+                </svg>
+            `)}`;
         }
-      });
 
-      gameArea.appendChild(cig);
-    }
-
-    function startGame() {
-      spawnInterval = setInterval(spawnCigarette, 500);
-
-      gameInterval = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(spawnInterval);
-          clearInterval(gameInterval);
-          gameOverEl.style.display = 'block';
+        // 폭발 이펙트 SVG (귀여운 픽셀 스타일)
+        function createExplosionSVG() {
+            return `data:image/svg+xml,${encodeURIComponent(`
+                <svg width="60" height="60" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="30" cy="30" r="8" fill="#ff6b6b"/>
+                    <circle cx="30" cy="30" r="12" fill="#ff9800" opacity="0.7"/>
+                    <circle cx="30" cy="30" r="16" fill="#ffd700" opacity="0.5"/>
+                    <rect x="28" y="10" width="4" height="8" fill="#ff6b6b"/>
+                    <rect x="28" y="42" width="4" height="8" fill="#ff6b6b"/>
+                    <rect x="10" y="28" width="8" height="4" fill="#ff6b6b"/>
+                    <rect x="42" y="28" width="8" height="4" fill="#ff6b6b"/>
+                    <rect x="15" y="15" width="6" height="6" fill="#ffd700"/>
+                    <rect x="39" y="15" width="6" height="6" fill="#ffd700"/>
+                    <rect x="15" y="39" width="6" height="6" fill="#ffd700"/>
+                    <rect x="39" y="39" width="6" height="6" fill="#ffd700"/>
+                </svg>
+            `)}`;
         }
-      }, 1000);
-    }
 
-    startGame();
-  </script>
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        function updateTimer() {
+            document.getElementById('timer').textContent = timeLeft;
+        }
+
+        function spawnCigarette() {
+            if (!gameActive) return;
+
+            const gameArea = document.getElementById('gameArea');
+            const cigarette = document.createElement('img');
+            cigarette.className = 'cigarette';
+            cigarette.src = createCigaretteSVG();
+            cigarette.style.width = '40px';
+            cigarette.style.height = '40px';
+            
+            const maxX = gameArea.clientWidth - 40;
+            const randomX = Math.random() * maxX;
+            
+            cigarette.style.left = randomX + 'px';
+            cigarette.style.top = '-40px';
+
+            cigarette.addEventListener('click', function(e) {
+                if (!gameActive) return;
+                
+                score++;
+                updateScore();
+
+                // 폭발 이펙트 생성
+                const explosion = document.createElement('img');
+                explosion.className = 'explosion';
+                explosion.src = createExplosionSVG();
+                explosion.style.width = '60px';
+                explosion.style.height = '60px';
+                explosion.style.left = (cigarette.offsetLeft - 10) + 'px';
+                explosion.style.top = cigarette.offsetTop + 'px';
+                
+                gameArea.appendChild(explosion);
+
+                // 담배 숨기기
+                cigarette.style.display = 'none';
+
+                // 1초 후 폭발 이펙트와 담배 제거
+                setTimeout(() => {
+                    if (explosion.parentNode) {
+                        explosion.remove();
+                    }
+                    if (cigarette.parentNode) {
+                        cigarette.remove();
+                    }
+                }, 1000);
+            });
+
+            gameArea.appendChild(cigarette);
+
+            // 담배 떨어지는 애니메이션
+            let position = -40;
+            const fallSpeed = 2;
+            
+            const fallInterval = setInterval(() => {
+                if (!gameActive || cigarette.style.display === 'none') {
+                    clearInterval(fallInterval);
+                    if (cigarette.parentNode && cigarette.style.display !== 'none') {
+                        cigarette.remove();
+                    }
+                    return;
+                }
+
+                position += fallSpeed;
+                cigarette.style.top = position + 'px';
+
+                if (position > gameArea.clientHeight) {
+                    clearInterval(fallInterval);
+                    if (cigarette.parentNode) {
+                        cigarette.remove();
+                    }
+                }
+            }, 20);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(spawnInterval);
+            clearInterval(timerInterval);
+
+            document.getElementById('finalScore').textContent = score + '점';
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            score = 0;
+            timeLeft = 20;
+            gameActive = true;
+
+            updateScore();
+            updateTimer();
+
+            document.getElementById('gameOver').style.display = 'none';
+            
+            // 기존 담배들 제거
+            const cigarettes = document.querySelectorAll('.cigarette, .explosion');
+            cigarettes.forEach(cig => cig.remove());
+
+            startGame();
+        }
+
+        function startGame() {
+            spawnInterval = setInterval(spawnCigarette, 800);
+            startTimer();
+        }
+
+        // 게임 시작
+        startGame();
+    </script>
 </body>
 </html>
