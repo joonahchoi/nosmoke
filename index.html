@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>흡연 예방 게임</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      background: #f0f0f0;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #cceeff;
+      image-rendering: pixelated;
+      cursor: crosshair;
+    }
+
+    .cigarette {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABKklEQVRYR+2WwQ2DMBBF34YMmAJpADpABvQAZ0AEagAd0AHdABdoAl0AHd1ngZt83SXOr+Vv/P9zu3i4TD4K0NIN+UgDNEO1WaRA6VvEYXbT7wHoU4HtmL7sZ1DW2sbpAghBLeXXyG+YZDNEFipqqbcIoJEmqGGRaBKkM2Am2bVppVyAK4ZodX+GZkzQ0PqSpaaOaKJxKgqH8W4IUmQZ0ymylh1IHckc99jgxga3gDT3YApdywByFJb8HpK9YTb9q7nLZjBTKmlcB6NOoyykd6gOmNOuA94R+V2R+67AhcWlyHdeDFE63RbhkguNnKwNNKNz6AAAAAElFTkSuQmCC');
+      background-size: cover;
+      animation: fall linear;
+    }
+
+    .explosion {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAeUlEQVRYR+2WsQnAIAxF6w+wAkc3fkvMXQ2axY1EM7zZXzg7e+YwwAfDAEMMAFqA6KhAI6qqrTtW8BvQ4G7MPpuLQKpIGpuhr+jFtvZTf4lAErw1UoFFP5XUJCzH0NHkwNsLkPvEHT+eE6s1EySmJKZ7AQ7EvIOKovGVAAAAAElFTkSuQmCC');
+    }
+
+    @keyframes fall {
+      0% { top: -40px; }
+      100% { top: 100vh; }
+    }
+
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+      color: #333;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 8px;
+      border-radius: 5px;
+    }
+
+    #timer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      color: #333;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 8px;
+      border-radius: 5px;
+    }
+
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      color: #444;
+      background: #fff;
+      padding: 20px 40px;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+    <div id="scoreboard">점수: 0</div>
+    <div id="timer">20</div>
+    <div id="gameOver">게임 종료!<br>새로고침으로 다시 시작</div>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const scoreboard = document.getElementById('scoreboard');
+    const timerEl = document.getElementById('timer');
+    const gameOverEl = document.getElementById('gameOver');
+    let score = 0;
+    let timeLeft = 20;
+    let gameInterval;
+    let spawnInterval;
+
+    function spawnCigarette() {
+      const cig = document.createElement('div');
+      cig.classList.add('cigarette');
+
+      const left = Math.random() * (window.innerWidth - 32);
+      const duration = 3 + Math.random() * 2;
+      cig.style.left = `${left}px`;
+      cig.style.animationDuration = `${duration}s`;
+
+      cig.addEventListener('click', () => {
+        cig.classList.add('explosion');
+        score++;
+        scoreboard.textContent = `점수: ${score}`;
+        cig.style.pointerEvents = 'none';
+
+        setTimeout(() => {
+          gameArea.removeChild(cig);
+        }, 1000);
+      });
+
+      // Remove if it falls off screen
+      cig.addEventListener('animationend', () => {
+        if (gameArea.contains(cig)) {
+          gameArea.removeChild(cig);
+        }
+      });
+
+      gameArea.appendChild(cig);
+    }
+
+    function startGame() {
+      spawnInterval = setInterval(spawnCigarette, 500);
+
+      gameInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(spawnInterval);
+          clearInterval(gameInterval);
+          gameOverEl.style.display = 'block';
+        }
+      }, 1000);
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
